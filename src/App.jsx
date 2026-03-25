@@ -1,10 +1,10 @@
 import { Show, SignIn, UserButton, useUser } from '@clerk/react';
-import { getDailyPerformance } from './services/alphaVantageService';
+// import { getDailyPerformance } from './services/alphaVantageService';
 import StockList from './components/StockList';
 function App() {
-  const { user } = useUser();
-  const data = getDailyPerformance('AAPL');
-  console.log("data", data);
+  // const { user } = useUser();
+  // const data = getDailyPerformance('AAPL');
+  // console.log("data", data);
   return (
     <>
       <header>
