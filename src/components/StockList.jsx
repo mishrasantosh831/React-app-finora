@@ -1,14 +1,13 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getDailyPerformance } from '../services/alphaVantageService';
 import { createClient } from "@supabase/supabase-js";
-import { AddStock, FetchWatchList } from "../services/supaBaseWatchListService";
+import { AddStock, FetchWatchList, RemoveStock } from "../services/supaBaseWatchListService";
 
-export default function StockList(userId) {
+export default function StockList({ userId }) {
     const [symbol, setSymbol] = useState("");
     const [error, setError] = useState("");
-    const [stocks, setStocks] = useState("");
-    const [performances, setPerformances] = useState("");
-
+    const [stocks, setStocks] = useState([]);
+    
     const supabase = createClient(import.meta.env.VITE_SUPERBASE_URL, import.meta.env.VITE_SUPERBASE_ANON_KEY);
 
     async function handleFetchStocks() {
@@ -25,7 +24,6 @@ export default function StockList(userId) {
     async function handleAddStock(e) {
         e.preventDefault();
         setError("");
-        setPerformances("");
         await AddStock(supabase, symbol.toUpperCase(), userId);
         setSymbol("");
         await handleFetchStocks();
@@ -43,7 +41,7 @@ export default function StockList(userId) {
     }
 
     async function loadPerformance(symbol) {
-        const updated = await new Promise.all(
+        const updated = await Promise.all(
             stocks.map(async (stock) => ({
                 ...stock,
                 perf: await getDailyPerformance(stock.symbol)
@@ -57,7 +55,6 @@ export default function StockList(userId) {
             handleFetchStocks();
         }
     }, [userId]);
-
     useEffect(() => {
         if (stocks.length > 0) {
             loadPerformance();
@@ -80,7 +77,10 @@ export default function StockList(userId) {
                 <button type="submit">Check Stock</button>
                 {error && <p style={{color: 'red'}}>{error}</p>}
                 {/* {performances && <p style={{color: performance > 0 ? "green" : "red"}}>{performances}%</p>} */}
-                <ul className="stock-list">
+                
+            </form>
+            <h3>Your Watch List</h3>
+            <ul className="stock-list">
                     {stocks && stocks.map(stock => (
                         <li key={stock.id}>
                             <span>{stock.symbol}</span>
@@ -89,7 +89,6 @@ export default function StockList(userId) {
                         </li>
                     ))}
                 </ul>
-            </form>
         </div>
     )
 }

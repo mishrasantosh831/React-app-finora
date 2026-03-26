@@ -7,6 +7,9 @@ export async function RemoveStock(supabase, id){
 }
 
 export async function FetchWatchList(supabase, userId){
-    const {data} = supabase.from("watchlist").select("id, symbol").eq("user_id", userId);
+    const { data } = await supabase
+    .from("watchlist")
+    .select("id, symbol")
+    .eq("user_id", userId);
     return data || null;
 } 

@@ -22,7 +22,6 @@ export async function getDailyPerformance(ticker) {
         function: 'TIME_SERIES_DAILY',
         symbol: ticker,
     });
-    console.log(json);
     const timeSeries = json['Time Series (Daily)'];
     if(!timeSeries) return null;
     const [latestDate, previousDate] = Object.keys(timeSeries);
