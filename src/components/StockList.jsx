@@ -2,20 +2,22 @@ import { useEffect, useState } from "react";
 import { getDailyPerformance } from '../services/alphaVantageService';
 import { createClient } from "@supabase/supabase-js";
 import { AddStock, FetchWatchList, RemoveStock } from "../services/supaBaseWatchListService";
+import { useSession } from "@clerk/react";
 
 export default function StockList({ userId }) {
+    const { session } = useSession();
     const [symbol, setSymbol] = useState("");
     const [error, setError] = useState("");
     const [stocks, setStocks] = useState([]);
     
-    const supabase = createClient(import.meta.env.VITE_SUPERBASE_URL, import.meta.env.VITE_SUPERBASE_ANON_KEY);
+    const supabase = createClient(import.meta.env.VITE_SUPERBASE_URL, import.meta.env.VITE_SUPERBASE_ANON_KEY,{
+        accessToken: () => session ? session.getToken({template:"supabase"}) : null
+    });
 
     async function handleFetchStocks() {
         try {
             const data = await FetchWatchList(supabase, userId);
             setStocks(data);
-
-            console.log("User's Watch List:", data);
         } catch (err) {
             console.error("Failed to fetch watch list:", err);
         }
@@ -27,16 +29,6 @@ export default function StockList({ userId }) {
         await AddStock(supabase, symbol.toUpperCase(), userId);
         setSymbol("");
         await handleFetchStocks();
-        // try {
-        //     const performance = await getDailyPerformance(symbol.toUpperCase());
-        //     if(!performance) {
-        //         setError("Invalid stock ticker. Please try again.");
-        //         return;
-        //     }
-        //     setPerformances(performance);
-        // } catch (err) {
-        //     setError("Failed to fetch stock performance. Please try again later.");
-        // }
 
     }
 
